@@ -193,9 +193,9 @@
 
 
     <section class="shell peer-section" id="earnings-growth">
-      <div class="section-header"><div><p class="eyebrow muted">07 / THE GROWTH TRAP</p><h2>What if Big Tech keeps compounding?</h2><p>A historical-earnings stress test, not a forecast. Apply the <strong>minimum, median or arithmetic mean of six companies’ FY2015–FY2025 annualised net-profit growth rates</strong> to their FY2025 earnings base, then compare their combined earnings with the global economy. <a href="#source-S-33">Apple’s original filing [S-33]</a> · <a href="#source-S-37">Nvidia’s [S-37]</a></p></div><span class="section-index">HISTORICAL GAAP DATA</span></div>
+      <div class="section-header"><div><p class="eyebrow muted">07 / THE GROWTH TRAP</p><h2>What if Big Tech keeps compounding?</h2><p>A historical-earnings stress test, not a forecast. Apply the <strong>minimum, median or arithmetic mean of six companies’ FY2015–FY2025 annualised net-profit growth rates</strong> to FY2025 earnings for <strong>11 years, through 2036</strong>, then compare their combined earnings with the global economy in the same year as Anthropic’s valuation scenario. <a href="#source-S-33">Apple’s original filing [S-33]</a> · <a href="#source-S-37">Nvidia’s [S-37]</a></p></div><span class="section-index">HISTORICAL GAAP DATA</span></div>
       <div class="peer-toolbar canvas">
-        <div class="peer-toggles"><span class="peer-label">Projection year</span><div class="peer-year-buttons"><button id="peerYear2035" class="outline-btn" type="button">2035 · 10 years</button><button id="peerYear2036" class="outline-btn selected" type="button">2036 · 11 years</button></div></div>
+        <div class="peer-toggles"><span class="peer-label">Projection: <strong>2036</strong> · 11 years from FY2025</span></div>
         <label class="peer-trim-label"><input id="peerTrim" type="checkbox"> Recalculate peer rates without Nvidia and Amazon <span>(outlier sensitivity)</span></label>
       </div>
       <div class="peer-summary-grid">
@@ -205,7 +205,7 @@
       </div>
       <p class="peer-explain"><b id="peerScope">Rates from all six peers</b>. These statistics refer to <em>six company-level 10-year CAGRs</em>—not the minimum, average or median of annual year-on-year growth rates. Amazon and Nvidia began with very small profits. A high historical CAGR is not a sustainable industry-wide forecast.</p>
       <div class="peer-table-wrap"><table class="peer-table"><thead><tr><th>Company</th><th>FY2015<br>profit</th><th>FY2025<br>profit</th><th>2015–25<br>CAGR</th><th>At minimum<br>peer CAGR</th><th>At median<br>peer CAGR</th><th>At mean<br>peer CAGR</th><th>Own CAGR<br>capped at 10%</th><th>Own past<br>CAGR repeated</th></tr></thead><tbody id="peerRows"></tbody><tfoot><tr id="peerTotals"></tr></tfoot></table></div>
-      <p class="peer-table-caption">All projections are <strong>hypothetical annual net income for <span id="peerYearDisplay">2036</span></strong>, compounding FY2025 reported profits over <span id="peerYearsAhead">11</span> years. “Own CAGR capped at 10%” uses the lesser of each firm’s historical CAGR and 10%, an illustrative downside-to-growth sensitivity; “own past CAGR repeated” intentionally illustrates unreasonable extrapolation. Reported input sources are linked in the source register [S-08–S-13, S-33–S-40]. Tesla is excluded because its 2015 profit was negative; Aramco because a directly comparable public 2015 earnings base was not available.</p>
+      <p class="peer-table-caption">All projections are <strong>hypothetical annual net income for 2036</strong>, compounding FY2025 reported profits over 11 years. “Own CAGR capped at 10%” uses the lesser of each firm’s historical CAGR and 10%, an illustrative downside-to-growth sensitivity; “own past CAGR repeated” intentionally illustrates unreasonable extrapolation. Reported input sources are linked in the source register [S-08–S-13, S-33–S-40]. Tesla is excluded because its 2015 profit was negative; Aramco because a directly comparable public 2015 earnings base was not available.</p>
       <div class="peer-decision-grid">
         <article class="canvas"><h3>Macro plausibility of the median case</h3><div class="peer-stat-number" id="peerMedianTotal">—</div><div class="peer-stat-row"><span>Share of projected world GDP</span><strong id="peerMedianGdpShare">—</strong></div><div class="peer-stat-row"><span>Share of projected global corporate profit pool</span><strong id="peerMedianCorpShare">—</strong></div><p>World GDP extrapolates the 2026 IMF baseline using the <em>current GDP-growth slider</em>. The corporate-profit share is another illustration, not an observed worldwide statistic. These are scale indicators, not accounting identities.</p></article>
         <article class="canvas"><h3>Compare with Anthropic's required profit</h3><div id="peerBarViz" class="peer-viz"></div><p id="peerComparisonNote"></p><p><b>Interpretation:</b> today's large tech firms could grow rapidly while Anthropic prospers too—but the combined claim on future profits must be consistent with the economic structure. Double-counted investment gains and supplier-customer relationships are a material caveat.</p></article>
@@ -324,9 +324,9 @@
     const values=rates.map(x=>x.rate),n=values.length;
     return {rates,n, min:values[0],max:values[n-1],mean:values.reduce((a,b)=>a+b,0)/n,median:n%2?values[(n-1)/2]:(values[n/2-1]+values[n/2])/2};
   }
-  function projectPeers(year=2036,excluded=[]){
-    if(![2035,2036].includes(year))throw new Error('Supported projection years: 2035, 2036');
-    const distributions=growthDistribution(excluded),horizon=year-2025;
+  function projectPeers(excluded=[]){
+    const year=2036,horizon=11;
+    const distributions=growthDistribution(excluded);
     const cases=[['Minimum peer CAGR',distributions.min],['Median peer CAGR',distributions.median],['Mean peer CAGR',distributions.mean],['Own-CAGR capped at 10%',0.10]];
     const rows=PEER_EARNINGS.map(c=>{
       const historicalCAGR=Math.pow(c.end/c.base,1/10)-1;
@@ -467,19 +467,14 @@
     });holder.replaceChildren(...rows);
   }
   // The peer exercise is a sanity check, NOT an implied Anthropic profit forecast.
-  let peerYear=2036, peerExcludeOutliers=false;
+  let peerExcludeOutliers=false;
   function renderPeers(r){
     const excluded=peerExcludeOutliers?['Nvidia','Amazon']:[];
-    const proj=M.projectPeers(peerYear,excluded),stats=proj.distribution;
+    const proj=M.projectPeers(excluded),stats=proj.distribution;
     const fmt=(value)=>value>=1000?'$'+num(value/1000,2)+'T':'$'+num(value,1)+'B';
     const pFmt=(value)=>num(value*100,1)+'%';
     set('peerMin',pFmt(stats.min));set('peerMedian',pFmt(stats.median));set('peerMean',pFmt(stats.mean));
-    set('peerYearDisplay',peerYear);set('peerYearsAhead',proj.horizon);
     $('peerScope').textContent=peerExcludeOutliers?'Rates from Apple, Microsoft, Alphabet and Meta (Nvidia/Amazon excluded)':'Rates from all six peers';
-    $('peerYear2035').setAttribute('aria-pressed',String(peerYear===2035));
-    $('peerYear2036').setAttribute('aria-pressed',String(peerYear===2036));
-    $('peerYear2035').classList.toggle('selected',peerYear===2035);
-    $('peerYear2036').classList.toggle('selected',peerYear===2036);
     $('peerTrim').checked=peerExcludeOutliers;
     const body=$('peerRows');body.replaceChildren();
     for(const x of proj.rows){const tr=document.createElement('tr');const cells=[x.name,fmt(x.base),fmt(x.end),pFmt(x.historicalCAGR),...proj.cases.map(([key])=>fmt(x.projected[key])),fmt(x.ownCAGR)];
@@ -489,14 +484,14 @@
     const totalBase=proj.rows.reduce((a,c)=>a+c.base,0),total2025=proj.rows.reduce((a,c)=>a+c.end,0);
     const totVals=['Total · all six companies',fmt(totalBase),fmt(total2025),'—',...proj.cases.map(([key])=>fmt(proj.totals[key])),fmt(proj.rows.reduce((a,c)=>a+c.ownCAGR,0))];
     totVals.forEach((v,i)=>{const td=document.createElement('td');td.textContent=v;total.append(td)});
-    // For comparability 2035 projected world GDP is one year less than 2036 model horizon.
-    const worldGdpPeer=M.CONSTANTS.baseGDP*Math.pow(1+state.gdpGrowth/100,peerYear-2026);
+    // Compare 2036 peer earnings with 2036 world GDP (2026 base, ten years of growth).
+    const worldGdpPeer=M.CONSTANTS.baseGDP*Math.pow(1+state.gdpGrowth/100,10);
     const profitPool=worldGdpPeer*state.profitGDP/100*1000; // B USD
     const totalMed=proj.totals['Median peer CAGR'];
     set('peerMedianTotal',fmt(totalMed));
     set('peerMedianGdpShare',num(totalMed/(worldGdpPeer*1000)*100,2)+'% of projected world GDP');
     set('peerMedianCorpShare',num(totalMed/profitPool*100,1)+'% of modelled world profit pool');
-    set('peerComparisonNote',peerYear===2036?'In the same year, the Anthropic scenario implies '+fmt(r.profit*1000)+' profit and the investment return hurdle is '+fmt(r.requiredProfit*1000)+'. The 2036 peer profit comparison is a scale test, not a valuation equation.':'2035 is exactly 10 years after the peers’ FY2025 baseline. Anthropic is modelled for 2036, so a direct ratio requires a one-year adjustment.');
+    set('peerComparisonNote','In 2036, the Anthropic scenario implies '+fmt(r.profit*1000)+' profit and the investment return hurdle is '+fmt(r.requiredProfit*1000)+'. The 2036 peer profit comparison is a scale test, not a valuation equation.');
     // Add a simple visual of the median case vs global profit pool and Anthropic profit hurdle.
     const segments=[['Peer net income at median CAGR',totalMed],['Anthropic 2036 profit hurdle',r.requiredProfit*1000]];
     const peerViz=$('peerBarViz');peerViz.replaceChildren();
@@ -554,7 +549,7 @@
   function csvEscape(s){return '"'+String(s).replaceAll('"','""')+'"'}
   function exportCSV(){const r=window.currentScenario;const rows=[['AI Economy Lab — scenario snapshot',''],['Generated on (local date)',new Date().toISOString().slice(0,10)],['Scenario',selected],['Basis',shareBasis],['All monetary amounts in US dollars',''],['Type','Variable','Value','Unit','Source or note'],['Reported','World nominal GDP 2026',128,'USD trillion','S-03'],['Reported','World labour income share 2025',52.6,'percent','S-05'],['Reported','Basic post-offering shares',M.CONSTANTS.baseShares,'billion shares','S-01 pp. 20–25'],['Derived from filing','Indicative diluted-equivalent shares',M.CONSTANTS.dilutedShares,'billion shares','S-01 p.25; includes contingent awards'],['Reported','Anthropic pre-IPO range low',70,'USD/share','S-01'],['Reported','Anthropic pre-IPO range high',78,'USD/share','S-01']];for(const k of inputs)rows.push(['Illustrative assumption',k,state[k],'percent / USD / multiple','User-adjustable, not externally estimated']);for(const [k,v] of Object.entries(r)){if(typeof v==='number'&&!inputs.includes(k))rows.push(['Modelled output',k,Number(v.toPrecision(12)),'See methodology','Calculated from disclosed formulas'])}rows.push(['Warning','Not a forecast or investment advice','','','Model omits detailed cash obligations, net debt, interim FCF and taxes']);const csv=rows.map(row=>row.map(csvEscape).join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='ai-economy-scenario-'+selected+'-2036.csv';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),2500);toast('Scenario assumptions and outputs exported.');}
   function populateSources(){const list=M.SOURCES.map(s=>{const item=document.createElement('article');item.className='source-item';item.id='source-'+s.id;const code=document.createElement('span');code.className='sid';code.textContent=s.id;const div=document.createElement('div');const org=document.createElement('div');org.className='source-organization';org.textContent=s.org+' · '+s.type;const a=document.createElement('a');a.href=s.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=s.title+' ↗';const meta=document.createElement('p');meta.textContent=s.used;const when=document.createElement('time');when.textContent=s.asof;div.append(org,a,meta,when);item.append(code,div);return item});$('sourceGrid').replaceChildren(...list);set('sourceCount',M.SOURCES.length+' documented references');}
-  function setup(){parseLink();populateSources();populateIPOs();$('peerYear2035').addEventListener('click',()=>{peerYear=2035;render()});$('peerYear2036').addEventListener('click',()=>{peerYear=2036;render()});$('peerTrim').addEventListener('change',e=>{peerExcludeOutliers=e.target.checked;render()});for(const k of inputs){$(k).addEventListener('input',e=>{state[k]=Number(e.target.value);selected='custom';syncControls();render()})}document.querySelectorAll('[data-preset]').forEach(el=>el.addEventListener('click',()=>updateState(el.dataset.preset)));$('resetBtn').addEventListener('click',()=>updateState('frontier'));
+  function setup(){parseLink();populateSources();populateIPOs();$('peerTrim').addEventListener('change',e=>{peerExcludeOutliers=e.target.checked;render()});for(const k of inputs){$(k).addEventListener('input',e=>{state[k]=Number(e.target.value);selected='custom';syncControls();render()})}document.querySelectorAll('[data-preset]').forEach(el=>el.addEventListener('click',()=>updateState(el.dataset.preset)));$('resetBtn').addEventListener('click',()=>updateState('frontier'));
     $('dilutedBtn').addEventListener('click',()=>{shareBasis='diluted';syncControls();render()});$('basicBtn').addEventListener('click',()=>{shareBasis='basic';syncControls();render()});
     $('downloadBtn').addEventListener('click',exportCSV);
     $('copyLinkBtn').addEventListener('click',async()=>{const value=scenarioUrl();try{await navigator.clipboard.writeText(value);toast('Shareable scenario URL copied.')}catch{window.prompt('Copy this scenario URL:',value)}});
