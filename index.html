@@ -118,7 +118,7 @@
         <div class="result-heading"><div><h2 id="scenarioName">Frontier concentration</h2><p id="scenarioDesc">A few frontier labs retain pricing power</p></div><span id="scenarioTag" class="scenario-tag">ILLUSTRATIVE</span></div>
         <div class="metric-grid">
           <article class="metric-card"><div class="metric-top">2036 world GDP <a href="#source-S-03">[S-03]</a></div><div class="metric-value" id="outGDP">$189.5T</div><div class="metric-note" id="gdpModelNote">2026 baseline × nominal growth</div></article>
-          <article class="metric-card"><div class="metric-top">Annual end-customer AI spending <span class="assumption-marker">MODEL</span></div><div class="metric-value" id="outMarket">$2.39T</div><div class="metric-note">Knowledge-work task market</div></article>
+          <article class="metric-card"><div class="metric-top">Annual end-customer AI spending <span class="assumption-marker">MODEL</span></div><div class="metric-value" id="outMarket">$2.39T</div><div class="metric-note">Knowledge-work task market; adoption-adjusted in feedback mode</div></article>
           <article class="metric-card focus"><div class="metric-top">Anthropic 2036 net profit <span class="assumption-marker">MODEL</span></div><div class="metric-value" id="outProfit">$119.6B</div><div class="metric-note">Revenue × long-run net margin</div></article>
           <article class="metric-card"><div class="metric-top">Share of global corporate profits <span class="assumption-marker">MODEL</span></div><div class="metric-value" id="outCorpShare">0.63%</div><div class="metric-note">Depends on global profit-pool assumption</div></article>
         </div>
@@ -403,7 +403,7 @@
     const yrs=10,macro=p.endogenousGDP?macroPath(p):null,worldGDP=macro?macro.worldGDP:CONSTANTS.baseGDP*Math.pow(1+p.gdpGrowth/100,yrs),usGDP=CONSTANTS.baseUSGDP*Math.pow(1+p.gdpGrowth/100,yrs);
     const labour=macro?macro.labour:worldGDP*CONSTANTS.laborShare/100;
     const knowledge=labour*p.knowledgeShare/100;
-    const addressed=knowledge*p.aiTaskShare/100;
+    const addressed=knowledge*p.aiTaskShare/100*(macro?macro.adoption/100:1);
     const market=addressed*p.aiSpendShare/100;
     const revenue=market*p.anthropicShare/100;
     const modelRevenue=revenue*(1-p.ecosystemMix/100);
